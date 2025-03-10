@@ -5,7 +5,6 @@ use \Illuminate\Support\Str;
 
 class App
 {
-    public $ROOT_PATH;
     public $APP_PATH;
     public $ROOT_URL;
     private static $instance = null;
@@ -17,8 +16,7 @@ class App
     public $allModels = null;
 
 
-    public function __construct($ROOT_PATH=null, $APP_PATH=null, $ROOT_URL="/") {
-        $this->ROOT_PATH = str_replace("/", DIRECTORY_SEPARATOR, realpath($ROOT_PATH)."/");
+    public function __construct($APP_PATH=null, $ROOT_URL="/") {
         $this->APP_PATH = str_replace("/", DIRECTORY_SEPARATOR, realpath($APP_PATH)."/");
         $this->ROOT_URL = $ROOT_URL;
         static::$instance = $this;
@@ -38,7 +36,7 @@ class App
         $this->app_settings = $settings;
 
         if ($this->app_settings["database"]["driver"]=='sqlite') { 
-           if (!file_exists($this->app_settings["database"]["file"])) file_put_contents($this->app_settings["database"]["file"], '');
+            if (!file_exists($this->app_settings["database"]["file"])) file_put_contents($this->app_settings["database"]["file"], '');
         }
 
         $this->DB = new \Illuminate\Database\Capsule\Manager();
@@ -51,13 +49,13 @@ class App
 
     public function connectDB() {
         try {
-           $this->DB->connection()->getPdo();
+            $this->DB->connection()->getPdo();
         } catch (\Exception $e) {
-           echo "Could not connect to the database. Please check your configuration. Error:";
-           echo "<pre>";
-           echo $e;
-           echo "</pre>";
-           die();
+            echo "Could not connect to the database. Please check your configuration. Error:";
+            echo "<pre>";
+            echo $e;
+            echo "</pre>";
+            die();
         }
     }
 
@@ -231,7 +229,6 @@ class App
 
 
     public function findTable($tableName) {
-        //return array_find($this->getAllModels(), function($value, $key) { return $value["table"] == $tableName; });
         foreach($this->getAllModels() as $model) {
             if ($model["table"] == $tableName) return $model;
         }

@@ -25,7 +25,7 @@ class Utils {
         return $ipaddress;
     }
 	
-    public static function getSlug($str, $asFile=false, $withCase=false) {
+    public static function getSlug($str, $withCase=false, $asFile=false) {
         $tr = array(
             "А"=>"a","Б"=>"b","В"=>"v","Г"=>"g",
             "Д"=>"d","Е"=>"e","Ё"=>"e","Ж"=>"j","З"=>"z","И"=>"i",
@@ -43,39 +43,15 @@ class Utils {
             " "=>"_", "."=>"_", ","=>"_", "/"=>"_", "\\"=>"_", 
             "'"=>"", "\""=>"", ":"=>"_", ";"=>"_"
         );
-        if ($asFile) {
-          $tr["."]=".";
-        }
+        if ($asFile) $tr["."]=".";
+
         if ($withCase) {
-          return strtr($str,$tr);
+            return strtr($str,$tr);
         } else {
-          return strtolower(strtr($str,$tr));
+            return strtolower(strtr($str,$tr));
         }
     }
 
-    public static function translit($str, $withCase=false) {
-        $tr = array(
-            "А"=>"a","Б"=>"b","В"=>"v","Г"=>"g",
-            "Д"=>"d","Е"=>"e","Ё"=>"e","Ж"=>"j","З"=>"z","И"=>"i",
-            "Й"=>"y","К"=>"k","Л"=>"l","М"=>"m","Н"=>"n",
-            "О"=>"o","П"=>"p","Р"=>"r","С"=>"s","Т"=>"t",
-            "У"=>"u","Ф"=>"f","Х"=>"h","Ц"=>"ts","Ч"=>"ch",
-            "Ш"=>"sh","Щ"=>"sch","Ъ"=>"","Ы"=>"yi","Ь"=>"",
-            "Э"=>"e","Ю"=>"yu","Я"=>"ya","а"=>"a","б"=>"b",
-            "в"=>"v","г"=>"g","д"=>"d","е"=>"e","ё"=>"e","ж"=>"j",
-            "з"=>"z","и"=>"i","й"=>"y","к"=>"k","л"=>"l",
-            "м"=>"m","н"=>"n","о"=>"o","п"=>"p","р"=>"r",
-            "с"=>"s","т"=>"t","у"=>"u","ф"=>"f","х"=>"h",
-            "ц"=>"ts","ч"=>"ch","ш"=>"sh","щ"=>"sch","ъ"=>"y",
-            "ы"=>"yi","ь"=>"","э"=>"e","ю"=>"yu","я"=>"ya", 
-        );
-        if ($withCase) {
-          return strtr($str,$tr);
-        } else {
-          return strtolower(strtr($str,$tr));
-        }
-    }
-   
     public static function strPadRight($str,$len,$ch) { $str = substr($str,0,$len); return str_pad($str, $len, $ch, STR_PAD_RIGHT); } 
     public static function strPadLeft($str,$len,$ch) { $str = substr($str,0,$len); return str_pad($str, $len, $ch, STR_PAD_LEFT); } 
     public static function strPadBoth($str,$len,$ch) { $str = substr($str,0,$len); return str_pad($str, $len, $ch, STR_PAD_BOTH); } 
@@ -240,11 +216,15 @@ class Utils {
 
 
 
-    public static function sendTelegramMessage($bot_token, $chat_d, $msg) {
-        if (strlen($msg) == 0) return;
-        $telegram = new \App\Devices\Controllers\Telegram($bot_token);
-        $content = ['chat_id' => $chat_d, 'text' => $msg, 'parse_mode' => "HTML"];
-        $rez = $telegram->sendMessage($content);
+    public static function sendTelegramMessage($token="", $chat="", $msg="") {
+        if (strlen($token) == 0 || strlen($chat) == 0 || strlen($msg) == 0) return;
+        $msg = urlencode($msg);
+        $url = "https://api.telegram.org/bot{$token}/sendMessage?chat_id={$chat}&text={$msg}";
+        $ch = curl_init();
+        curl_setopt_array($ch, [CURLOPT_URL=>$url, CURLOPT_RETURNTRANSFER=>true]);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
     }
 
 
